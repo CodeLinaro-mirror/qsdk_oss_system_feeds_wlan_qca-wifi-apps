@@ -16,7 +16,8 @@ define Package/$(PKG_NAME)
 endef
 
 define Package/$(PKG_NAME)/description
-  Daemon to monitor and copy UIO buffer data periodically sent from ath12k driver and trigger diagnostic action.
+	Host subsystem handler for Debug Agent to process ath12k UIO interrupt/data buffers,
+	Netlink buffers, event handling and trigger diagnostic actions.
 endef
 
 define Build/Prepare
@@ -24,16 +25,19 @@ define Build/Prepare
 	cp -r $(TOPDIR)/qca/src/qca-wifi-apps/host_sshandler/* $(PKG_BUILD_DIR)/
 endef
 
+DA_INCLUDE := $(TOPDIR)/../da/gwapps_da_libs_bins/include
+TC_INCLUDE := $(TOPDIR)/../frmwrk/gwapps_cmn_headers/transport_lib
+
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
-		CFLAGS="$(TARGET_CFLAGS) -Wall -I." \
-		LDFLAGS="$(TARGET_LDFLAGS) -lpthread"
+		CFLAGS="$(TARGET_CFLAGS) -Wall -I. -I$(DA_INCLUDE) -I$(TC_INCLUDE) -fPIC" \
+		LDFLAGS="$(TARGET_LDFLAGS) -lpthread -shared"
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/host_sshandler $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libhost_subsystem_handler.so $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
