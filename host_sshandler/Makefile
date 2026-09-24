@@ -27,11 +27,17 @@ endef
 
 DA_INCLUDE := $(TOPDIR)/../da/gwapps_da_libs_bins/include
 TC_INCLUDE := $(TOPDIR)/../frmwrk/gwapps_cmn_headers/transport_lib
+ANOMALY_NOTIFY_INCLUDE := $(TOPDIR)/../frmwrk/gwapps_cmn_headers/da
+
+ifneq ($(wildcard $(ANOMALY_NOTIFY_INCLUDE)/anomaly_notify.h),)
+ANOMALY_NOTIFY_FLAGS := -DANOMALY_NOTIFY_HDR_PRESENT -I$(ANOMALY_NOTIFY_INCLUDE)
+endif
 
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR) \
 		CC="$(TARGET_CC)" \
-		CFLAGS="$(TARGET_CFLAGS) -Wall -I. -I$(DA_INCLUDE) -I$(TC_INCLUDE) -fPIC" \
+		CFLAGS="$(TARGET_CFLAGS) -Wall -I. -I$(DA_INCLUDE) -I$(TC_INCLUDE) \
+		$(ANOMALY_NOTIFY_FLAGS) -fPIC" \
 		LDFLAGS="$(TARGET_LDFLAGS) -lpthread -shared"
 endef
 
